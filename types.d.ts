@@ -217,22 +217,22 @@ declare interface AssetInfo {
 	/**
 	 * the value(s) of the full hash used for this asset
 	 */
-	fullhash?: LibraryExport;
+	fullhash?: EntryItem;
 
 	/**
 	 * the value(s) of the chunk hash used for this asset
 	 */
-	chunkhash?: LibraryExport;
+	chunkhash?: EntryItem;
 
 	/**
 	 * the value(s) of the module hash used for this asset
 	 */
-	modulehash?: LibraryExport;
+	modulehash?: EntryItem;
 
 	/**
 	 * the value(s) of the content hash used for this asset
 	 */
-	contenthash?: LibraryExport;
+	contenthash?: EntryItem;
 
 	/**
 	 * size in bytes, only set after asset has been emitted
@@ -252,7 +252,7 @@ declare interface AssetInfo {
 	/**
 	 * object of pointers to other assets, keyed by type of relation (only points from parent to child)
 	 */
-	related?: Record<string, LibraryExport>;
+	related?: Record<string, EntryItem>;
 }
 type AssetModuleFilename =
 	| string
@@ -2573,9 +2573,9 @@ declare class EnableLibraryPlugin {
 }
 type Entry =
 	| string
-	| (() => string | EntryObject | [string, ...string[]] | Promise<EntryStatic>)
+	| (() => string | EntryObject | string[] | Promise<EntryStatic>)
 	| EntryObject
-	| [string, ...string[]];
+	| string[];
 declare interface EntryData {
 	/**
 	 * dependencies of the entrypoint that should be evaluated at startup
@@ -2614,7 +2614,7 @@ declare interface EntryDescription {
 	/**
 	 * The entrypoints that the current entrypoint depend on. They must be loaded when this entrypoint is loaded.
 	 */
-	dependOn?: EntryItem;
+	dependOn?: string | [string, ...string[]];
 
 	/**
 	 * Specifies the name of each output file on disk. You must **not** specify an absolute path here! The `output.path` option determines the location on disk the files are written to, filename is used solely for naming the individual files.
@@ -2681,7 +2681,7 @@ declare interface EntryDescriptionNormalized {
 	 */
 	wasmLoading?: DevTool;
 }
-type EntryItem = string | [string, ...string[]];
+type EntryItem = string | string[];
 type EntryNormalized =
 	| (() => Promise<EntryStaticNormalized>)
 	| EntryStaticNormalized;
@@ -2690,7 +2690,7 @@ type EntryNormalized =
  * Multiple entry bundles are created. The key is the entry name. The value can be a string, an array or an entry description object.
  */
 declare interface EntryObject {
-	[index: string]: string | [string, ...string[]] | EntryDescription;
+	[index: string]: string | string[] | EntryDescription;
 }
 declare class EntryPlugin {
 	/**
@@ -2745,7 +2745,7 @@ declare class EntryPlugin {
 			  >)
 	): EntryDependency;
 }
-type EntryStatic = string | EntryObject | [string, ...string[]];
+type EntryStatic = string | EntryObject | string[];
 
 /**
  * Multiple entry bundles are created. The key is the entry name. The value is an entry description object.
@@ -3036,18 +3036,18 @@ declare abstract class ExportsInfo {
 	): boolean | SortableSet<string>;
 	getProvidedExports(): true | string[];
 	getRelevantExports(runtime: string | SortableSet<string>): ExportInfo[];
-	isExportProvided(name: LibraryExport): boolean;
+	isExportProvided(name: EntryItem): boolean;
 	getUsageKey(runtime: string | SortableSet<string>): string;
 	isEquallyUsed(
 		runtimeA: string | SortableSet<string>,
 		runtimeB: string | SortableSet<string>
 	): boolean;
 	getUsed(
-		name: LibraryExport,
+		name: EntryItem,
 		runtime: string | SortableSet<string>
 	): 0 | 1 | 2 | 3 | 4;
 	getUsedName(
-		name: LibraryExport,
+		name: EntryItem,
 		runtime: string | SortableSet<string>
 	): string | false | string[];
 	updateHash(hash: Hash, runtime: string | SortableSet<string>): void;
@@ -3145,7 +3145,7 @@ type ExternalItem =
 	  ) => void);
 declare class ExternalModule extends Module {
 	constructor(request?: any, type?: any, userRequest?: any);
-	request: string | string[] | Record<string, LibraryExport>;
+	request: string | string[] | Record<string, EntryItem>;
 	externalType: string;
 	userRequest: string;
 	getSourceData(
@@ -4346,9 +4346,8 @@ declare interface LibraryCustomUmdObject {
 	/**
 	 * Name of the property exposed globally by a UMD library.
 	 */
-	root?: LibraryExport;
+	root?: EntryItem;
 }
-type LibraryExport = string | string[];
 type LibraryName = string | string[] | LibraryCustomUmdObject;
 
 /**
@@ -4363,7 +4362,7 @@ declare interface LibraryOptions {
 	/**
 	 * Specify which export should be exposed as library.
 	 */
-	export?: LibraryExport;
+	export?: EntryItem;
 
 	/**
 	 * The name of the library (some types allow unnamed libraries too).
@@ -4386,14 +4385,14 @@ declare class LibraryTemplatePlugin {
 		target: string,
 		umdNamedDefine: boolean,
 		auxiliaryComment: AuxiliaryComment,
-		exportProperty: LibraryExport
+		exportProperty: EntryItem
 	);
 	library: {
 		type: string;
 		name: LibraryName;
 		umdNamedDefine: boolean;
 		auxiliaryComment: AuxiliaryComment;
-		export: LibraryExport;
+		export: EntryItem;
 	};
 
 	/**
@@ -4877,7 +4876,7 @@ declare class ModuleGraph {
 		module: Module
 	): (string | ((requestShortener: RequestShortener) => string))[];
 	getProvidedExports(module: Module): true | string[];
-	isExportProvided(module: Module, exportName: LibraryExport): boolean;
+	isExportProvided(module: Module, exportName: EntryItem): boolean;
 	getExportsInfo(module: Module): ExportsInfo;
 	getExportInfo(module: Module, exportName: string): ExportInfo;
 	getReadOnlyExportInfo(module: Module, exportName: string): ExportInfo;
@@ -6075,7 +6074,7 @@ declare interface Output {
 	/**
 	 * Specify which export should be exposed as library.
 	 */
-	libraryExport?: LibraryExport;
+	libraryExport?: EntryItem;
 
 	/**
 	 * Type of library (types included by default are 'var', 'module', 'assign', 'this', 'window', 'self', 'global', 'commonjs', 'commonjs2', 'commonjs-module', 'amd', 'amd-require', 'umd', 'umd2', 'jsonp', 'system', but others might be added by plugins).
@@ -6595,8 +6594,8 @@ declare interface ProgressPluginOptions {
 	profile?: boolean;
 }
 declare class ProvidePlugin {
-	constructor(definitions: Record<string, LibraryExport>);
-	definitions: Record<string, LibraryExport>;
+	constructor(definitions: Record<string, EntryItem>);
+	definitions: Record<string, EntryItem>;
 
 	/**
 	 * Apply the plugin
@@ -6983,7 +6982,7 @@ declare interface ResolveOptionsTypes {
 		 */
 		onlyModule?: boolean;
 	}[];
-	aliasFields: Set<LibraryExport>;
+	aliasFields: Set<EntryItem>;
 	cachePredicate: (arg0: ResolveRequest) => boolean;
 	cacheWithContext: boolean;
 
@@ -6993,14 +6992,14 @@ declare interface ResolveOptionsTypes {
 	conditionNames: Set<string>;
 	descriptionFiles: string[];
 	enforceExtension: boolean;
-	exportsFields: Set<LibraryExport>;
-	importsFields: Set<LibraryExport>;
+	exportsFields: Set<EntryItem>;
+	importsFields: Set<EntryItem>;
 	extensions: Set<string>;
 	fileSystem: FileSystem;
 	unsafeCache: any;
 	symlinks: boolean;
 	resolver?: Resolver;
-	modules: LibraryExport[];
+	modules: EntryItem[];
 	mainFields: { name: string[]; forceRelative: boolean }[];
 	mainFiles: Set<string>;
 	plugins: (
@@ -7026,7 +7025,7 @@ declare interface ResolveOptionsWebpackOptions {
 	/**
 	 * Fields in the description file (usually package.json) which are used to redirect requests inside the module.
 	 */
-	aliasFields?: LibraryExport[];
+	aliasFields?: EntryItem[];
 
 	/**
 	 * Extra resolve options per dependency category. Typical categories are "commonjs", "amd", "esm".
@@ -7096,7 +7095,7 @@ declare interface ResolveOptionsWebpackOptions {
 	/**
 	 * Field names from the description file (package.json) which are used to find the default entry point.
 	 */
-	mainFields?: LibraryExport[];
+	mainFields?: EntryItem[];
 
 	/**
 	 * Filenames used to find the default entry point if there is no description file or main field.
@@ -7223,7 +7222,7 @@ declare abstract class ResolverFactory {
 						/**
 						 * Fields in the description file (usually package.json) which are used to redirect requests inside the module.
 						 */
-						aliasFields?: LibraryExport[];
+						aliasFields?: EntryItem[];
 						/**
 						 * Extra resolve options per dependency category. Typical categories are "commonjs", "amd", "esm".
 						 */
@@ -7279,7 +7278,7 @@ declare abstract class ResolverFactory {
 						/**
 						 * Field names from the description file (package.json) which are used to find the default entry point.
 						 */
-						mainFields?: LibraryExport[];
+						mainFields?: EntryItem[];
 						/**
 						 * Filenames used to find the default entry point if there is no description file or main field.
 						 */
@@ -7335,7 +7334,7 @@ declare abstract class ResolverFactory {
 						/**
 						 * Fields in the description file (usually package.json) which are used to redirect requests inside the module.
 						 */
-						aliasFields?: LibraryExport[];
+						aliasFields?: EntryItem[];
 						/**
 						 * Extra resolve options per dependency category. Typical categories are "commonjs", "amd", "esm".
 						 */
@@ -7391,7 +7390,7 @@ declare abstract class ResolverFactory {
 						/**
 						 * Field names from the description file (package.json) which are used to find the default entry point.
 						 */
-						mainFields?: LibraryExport[];
+						mainFields?: EntryItem[];
 						/**
 						 * Filenames used to find the default entry point if there is no description file or main field.
 						 */
@@ -7447,7 +7446,7 @@ declare abstract class ResolverFactory {
 			/**
 			 * Fields in the description file (usually package.json) which are used to redirect requests inside the module.
 			 */
-			aliasFields?: LibraryExport[];
+			aliasFields?: EntryItem[];
 			/**
 			 * Extra resolve options per dependency category. Typical categories are "commonjs", "amd", "esm".
 			 */
@@ -7503,7 +7502,7 @@ declare abstract class ResolverFactory {
 			/**
 			 * Field names from the description file (package.json) which are used to find the default entry point.
 			 */
-			mainFields?: LibraryExport[];
+			mainFields?: EntryItem[];
 			/**
 			 * Filenames used to find the default entry point if there is no description file or main field.
 			 */
@@ -8077,7 +8076,7 @@ declare abstract class RuntimeTemplate {
 		/**
 		 * the export name
 		 */
-		exportName: LibraryExport;
+		exportName: EntryItem;
 		/**
 		 * the origin module
 		 */
@@ -9084,9 +9083,9 @@ declare class Template {
 	static toPath(str: string): string;
 	static numberToIdentifier(n: number): string;
 	static numberToIdentifierContinuation(n: number): string;
-	static indent(s: LibraryExport): string;
-	static prefix(s: LibraryExport, prefix: string): string;
-	static asString(str: LibraryExport): string;
+	static indent(s: EntryItem): string;
+	static prefix(s: EntryItem, prefix: string): string;
+	static asString(str: EntryItem): string;
 	static getModulesArrayBounds(modules: WithId[]): false | [number, number];
 	static renderChunkModules(
 		renderContext: RenderContextModuleTemplate,
@@ -9168,7 +9167,7 @@ declare interface UserResolveOptions {
 	/**
 	 * A list of alias fields in description files
 	 */
-	aliasFields?: LibraryExport[];
+	aliasFields?: EntryItem[];
 
 	/**
 	 * A function which decides whether a request should be cached or not. An object is passed with at least `path` and `request` properties.
@@ -9198,12 +9197,12 @@ declare interface UserResolveOptions {
 	/**
 	 * A list of exports fields in description files
 	 */
-	exportsFields?: LibraryExport[];
+	exportsFields?: EntryItem[];
 
 	/**
 	 * A list of imports fields in description files
 	 */
-	importsFields?: LibraryExport[];
+	importsFields?: EntryItem[];
 
 	/**
 	 * A list of extensions which should be tried for files
@@ -9233,7 +9232,7 @@ declare interface UserResolveOptions {
 	/**
 	 * A list of directories to resolve modules from, can be absolute path or folder name
 	 */
-	modules?: LibraryExport;
+	modules?: EntryItem;
 
 	/**
 	 * A list of main fields in description files
@@ -9241,7 +9240,7 @@ declare interface UserResolveOptions {
 	mainFields?: (
 		| string
 		| string[]
-		| { name: LibraryExport; forceRelative: boolean }
+		| { name: EntryItem; forceRelative: boolean }
 	)[];
 
 	/**
@@ -9337,7 +9336,7 @@ declare interface WatchOptions {
 	/**
 	 * Ignore some files from watching (glob pattern).
 	 */
-	ignored?: LibraryExport;
+	ignored?: EntryItem;
 
 	/**
 	 * Enable polling mode for watching.
@@ -9385,7 +9384,7 @@ declare abstract class Watching {
 		/**
 		 * Ignore some files from watching (glob pattern).
 		 */
-		ignored?: LibraryExport;
+		ignored?: EntryItem;
 		/**
 		 * Enable polling mode for watching.
 		 */
@@ -9665,7 +9664,7 @@ declare interface WithOptions {
 			/**
 			 * Fields in the description file (usually package.json) which are used to redirect requests inside the module.
 			 */
-			aliasFields?: LibraryExport[];
+			aliasFields?: EntryItem[];
 			/**
 			 * Extra resolve options per dependency category. Typical categories are "commonjs", "amd", "esm".
 			 */
@@ -9721,7 +9720,7 @@ declare interface WithOptions {
 			/**
 			 * Field names from the description file (package.json) which are used to find the default entry point.
 			 */
-			mainFields?: LibraryExport[];
+			mainFields?: EntryItem[];
 			/**
 			 * Filenames used to find the default entry point if there is no description file or main field.
 			 */
