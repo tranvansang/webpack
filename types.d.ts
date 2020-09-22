@@ -7569,7 +7569,7 @@ type RuleSetCondition =
 			/**
 			 * Logical NOT.
 			 */
-			not?: RuleSetCondition[];
+			not?: RuleSetCondition;
 			/**
 			 * Logical OR.
 			 */
