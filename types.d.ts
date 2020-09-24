@@ -3513,6 +3513,23 @@ declare class Generator {
 	updateHash(hash: Hash, __1: UpdateHashContextGenerator): void;
 	static byType(map?: any): ByTypeGenerator;
 }
+declare class GetChunkFilenameRuntimeModule extends RuntimeModule {
+	constructor(
+		contentType: string,
+		name: string,
+		global: string,
+		getFilenameForChunk: (
+			arg0: Chunk
+		) => string | ((arg0: PathData, arg1: AssetInfo) => string),
+		allChunks: boolean
+	);
+	contentType: string;
+	global: string;
+	getFilenameForChunk: (
+		arg0: Chunk
+	) => string | ((arg0: PathData, arg1: AssetInfo) => string);
+	allChunks: boolean;
+}
 declare interface GroupConfig<T, R> {
 	getKeys: (arg0: T) => string[];
 	createGroup: (arg0: string, arg1: (T | R)[], arg2: T[]) => R;
@@ -3583,6 +3600,9 @@ declare class HotModuleReplacementPlugin {
 	 */
 	apply(compiler: Compiler): void;
 	static getParserHooks(parser: JavascriptParser): HMRJavascriptParserHooks;
+}
+declare class HotUpdateChunk extends Chunk {
+	constructor();
 }
 declare class HttpUriPlugin {
 	constructor();
@@ -3735,6 +3755,11 @@ declare class JavascriptModulesPlugin {
 		hooks: CompilationHooksJavascriptModulesPlugin,
 		compilation: Compilation
 	): Source;
+	updateHashWithBootstrap(
+		hash: Hash,
+		renderContext: RenderBootstrapContext,
+		hooks: CompilationHooksJavascriptModulesPlugin
+	): void;
 	renderBootstrap(
 		renderContext: RenderBootstrapContext,
 		hooks: CompilationHooksJavascriptModulesPlugin
@@ -9965,7 +9990,7 @@ declare namespace exports {
 		};
 	}
 	export namespace runtime {
-		export { LoadScriptRuntimeModule };
+		export { GetChunkFilenameRuntimeModule, LoadScriptRuntimeModule };
 	}
 	export namespace prefetch {
 		export { ChunkPrefetchPreloadPlugin };
@@ -10148,6 +10173,7 @@ declare namespace exports {
 		ExternalModule,
 		ExternalsPlugin,
 		Generator,
+		HotUpdateChunk,
 		HotModuleReplacementPlugin,
 		IgnorePlugin,
 		JavascriptModulesPlugin,
